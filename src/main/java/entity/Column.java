@@ -207,7 +207,7 @@ public class Column implements Serializable {
         // 类型是否相同,为true时，则相同
         boolean boolType = true;
         // 因为从数据库读取出来的列类型全改为小写,所以这里也要改成小写
-        if (!this.getFiledType().equals(cExcel.getFiledType().toLowerCase())) {
+        if (!this.getFiledType().toLowerCase().equals(cExcel.getFiledType().toLowerCase())) {
             boolType = false;
         }
 
@@ -247,8 +247,15 @@ public class Column implements Serializable {
             // 是否都有或者没有精度
             boolPrecision = cExcel.isHasPrecision() == this.isHasPrecision();
         }
+
+        //备注是否相同(改变)
+        boolean boolDesc = true;
+        if (!this.getDesc().equals(cExcel.getDesc())) {
+            boolDesc = false;
+        }
+
         //内容一样
-        if (boolType && boolLength && boolPrecision && name_ch && boolFK) {
+        if (boolType && boolLength && boolPrecision && name_ch && boolFK && boolDesc) {
             return true;
         }
 
