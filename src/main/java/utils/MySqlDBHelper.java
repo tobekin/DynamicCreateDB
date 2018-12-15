@@ -78,6 +78,10 @@ public class MySqlDBHelper {
         File file = new File(filePath);
         //取出文件中所有的表
         Map<String, Table> allTables = ExcelHelper.getAllTables(file, true);
+
+        //构建所有表的实体类
+        EntityBuilderHelper.builder(allTables);
+
         Iterator<String> keyStr = allTables.keySet().iterator();
         //如果有值
         while (keyStr.hasNext()) {
@@ -102,8 +106,8 @@ public class MySqlDBHelper {
             System.out.println("数据库表" + table.getTableNameChinese() + "，内容为：" + table);
 
             //读取该数据库表的所有列信息
-            Table tableCludeColnums = getTable(config, table.getTableName(), true);
-            System.out.println("数据库表的字段为：" + tableCludeColnums.getColumns());
+            Table tableAllColnums = getTable(config, table.getTableName(), true);
+            System.out.println("数据库表的字段为：" + tableAllColnums.getColumns());
         }
 
         /**
