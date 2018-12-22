@@ -165,7 +165,7 @@ public class MySqlDBHelper {
         Column delColumn = new Column();
         delColumn.setTableName("SYS_TEST");
         delColumn.setFiledName("TEST_FILED");
-        dropColumn(config,delColumn);
+        dropColumn(config, delColumn);
     }
 
 
@@ -457,7 +457,7 @@ public class MySqlDBHelper {
             ConnectionHelper.execSql(sql.toString(), conn);
 
         } catch (Exception err) {
-            System.out.println("创建数据库表出错：" + err.getMessage());
+            System.out.println("创建数据库表" + table.getTableName() + "出错：" + err.getMessage());
             err.printStackTrace();
         } finally {
             ConnectionHelper.closeCon(conn);
@@ -563,7 +563,7 @@ public class MySqlDBHelper {
             sql.append("alter table ").append(c.getTableName()).append(" drop column ").append(c.getFiledName());
             // 更新数据库
             ConnectionHelper.execSql(sql.toString(), conn);
-            String inSql = "DELETE FROM " + ALL_COLUMNS + " WHERE FILED_NAME='" + c.getFiledName()+"'";
+            String inSql = "DELETE FROM " + ALL_COLUMNS + " WHERE FILED_NAME='" + c.getFiledName() + "'";
             ConnectionHelper.execSql(inSql, conn);
         } catch (Exception err) {
             err.printStackTrace();
