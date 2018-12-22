@@ -26,10 +26,10 @@ public class EntityBuilderHelper {
 
             //默认构造方法
             codeFile.addConstructor(null);
-            Map<String, String> map = new LinkedHashMap<>();
+            /*Map<String, String> map = new LinkedHashMap<>();
             map.put("id", "String");
             //id构造方法
-            codeFile.addConstructor(map);
+            codeFile.addConstructor(map);*/
 
             //其他属性
             for (String key : table.getColumns().keySet()) {
