@@ -330,6 +330,9 @@ public class MySqlDBHelper {
                 //是否需要执行
                 if (execStatus) {
                     // 添加到ALL_COLUMNS表中
+                    if (StringUtils.isNotBlank(c.getDefaultValue()) && StringUtils.equals("null", c.getDefaultValue())) {
+                        c.setDefaultValue("");
+                    }
                     String inSql = "INSERT INTO " + ALL_COLUMNS + "(TABLE_NAME_INFO,FILED_NAME,FILED_NAME_CHINESE,DATA_TYPE,FILED_LENGTH,DEFAULT_VALUE,FOREIGN_KEY,DESCRIPTION)"
                             + " VALUES('" + c.getTableName() + "','" + c.getFiledName() + "','" + c.getFiledNameChinese() + "','"
                             + c.getFiledType() + "','" + c.getFiledLength() + "','" + c.getDefaultValue() + "','" + c.getForeignKey() + "','" + c.getDesc() + "')";
@@ -572,9 +575,8 @@ public class MySqlDBHelper {
         }
         //默认值
         if (c.isHasPrimaryKey() == false && StringUtils.isNotBlank(c.getDefaultValue())) {
-            if (StringUtils.equals(c.getDefaultValue(), "null")) {
-                sql.append(EN).append("DEFAULT ").append(c.getDefaultValue().toUpperCase());
-            } else {
+            //不为空
+            if (!StringUtils.equals(c.getDefaultValue(), "null")) {
                 sql.append(EN).append("DEFAULT ").append("'").append(c.getDefaultValue()).append("'");
             }
         }

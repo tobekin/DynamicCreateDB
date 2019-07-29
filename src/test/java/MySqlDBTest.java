@@ -28,7 +28,9 @@ public class MySqlDBTest {
         //读取当前文件路径
         String fileName = "test.xlsx";
         String filePath = MySqlDBHelper.class.getClassLoader().getResource(fileName).getPath();
-        String sqlPath = filePath.replace("xlsx", "sql");
+        //后缀
+        String suffix = fileName.substring(fileName.lastIndexOf(".") + 1);
+        String sqlPath = filePath.replace(suffix, "sql");
 
         //实例化一个文件对象
         File file = new File(filePath);
@@ -98,6 +100,10 @@ public class MySqlDBTest {
         updateTable.setTableName("SYS_TEST");
         updateTable.setTableNameChinese("测试表01");
         updateTable.setDescription("示例表01");
+
+        String sql = MySqlDBHelper.updateTable(config, updateTable, false);
+        System.out.println("更新数据表sql,如下：");
+        System.out.println(sql);
         MySqlDBHelper.updateTable(config, updateTable, true);
     }
 
@@ -126,6 +132,10 @@ public class MySqlDBTest {
         addColumn.setDefaultValue("");
         addColumn.setForeignKey("");
         addColumn.setDesc("测试字段");
+
+        String sql = MySqlDBHelper.createColumn(config, addColumn, false);
+        System.out.println("新增数据表字段sql,如下：");
+        System.out.println(sql);
         MySqlDBHelper.createColumn(config, addColumn, true);
     }
 
@@ -168,6 +178,10 @@ public class MySqlDBTest {
         excelColumn.setDefaultValue("");
         excelColumn.setForeignKey("");
         excelColumn.setDesc("测试字段更新");
+
+        String sql = MySqlDBHelper.updateColumn(config, addColumn, excelColumn, false);
+        System.out.println("更新数据表字段sql,如下：");
+        System.out.println(sql);
         MySqlDBHelper.updateColumn(config, addColumn, excelColumn, true);
     }
 
@@ -184,6 +198,10 @@ public class MySqlDBTest {
         Column delColumn = new Column();
         delColumn.setTableName("SYS_TEST");
         delColumn.setFiledName("TEST_FILED");
+
+        String sql = MySqlDBHelper.dropColumn(config, delColumn, false);
+        System.out.println("删除数据表字段sql,如下：");
+        System.out.println(sql);
         MySqlDBHelper.dropColumn(config, delColumn, true);
     }
 
