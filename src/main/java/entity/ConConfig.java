@@ -28,6 +28,9 @@ public class ConConfig implements Serializable {
      */
     private String dbName;
 
+    public ConConfig() {
+    }
+
     /**
      * 构造方法（不带数据库名）
      *

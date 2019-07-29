@@ -6,10 +6,12 @@ import entity.Table;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -59,115 +61,7 @@ public class MySqlDBHelper {
      */
     public final static String ALL_TABLES = "TABLE_MATE";
 
-    /**
-     * 主函数
-     *
-     * @param args
-     */
-    public static void main(String[] args) throws Exception {
-        //初始化数据库
-        initDB("jdbc:mysql://localhost", "root", "123456", "DYNAMIC_CREATE_DB_TEST".toLowerCase(), dbUTF8);
-        ConConfig config = new ConConfig("jdbc:mysql://localhost", "root", "123456", "DYNAMIC_CREATE_DB_TEST".toLowerCase());
-
-        /**
-         * 动态创建表
-         */
-        //读取当前文件路径
-        String filePath = MySqlDBHelper.class.getClassLoader().getResource("test.xlsx").getPath();
-        //实例化一个文件对象
-        File file = new File(filePath);
-        //取出文件中所有的表
-        Map<String, Table> allTables = ExcelHelper.getAllTables(file, true);
-
-        //构建所有表的实体类
-        EntityBuilderHelper.builder(allTables);
-
-        Iterator<String> keyStr = allTables.keySet().iterator();
-        //如果有值
-        while (keyStr.hasNext()) {
-            //取出key
-            String key = keyStr.next();
-            //取出table对象
-            Table table = allTables.get(key);
-            //创建表对象
-            createTable(config, table, tableUtf8, tableRowFormat);
-        }
-
-        /**
-         * 取出数据库中数据库表的信息
-         */
-        Map<String, Table> allTablesFromDB = getAllTables(config);
-        Iterator<String> keyStrFromDB = allTablesFromDB.keySet().iterator();
-        //如果有值
-        while (keyStrFromDB.hasNext()) {
-            //取出key
-            String key = keyStrFromDB.next();
-            Table table = allTablesFromDB.get(key);
-            System.out.println("数据库表" + table.getTableNameChinese() + "，内容为：" + table);
-
-            //读取该数据库表的所有列信息
-            Table tableAllColnums = getTable(config, table.getTableName(), true);
-            System.out.println("数据库表的字段为：" + tableAllColnums.getColumns());
-        }
-
-        /**
-         * 更新数据库表信息
-         */
-        Table updateTable = new Table();
-        updateTable.setId(1);
-        updateTable.setPackName("com.test");
-        updateTable.setTableName("SYS_TEST");
-        updateTable.setTableNameChinese("测试表01");
-        updateTable.setDescription("示例表01");
-        updateTable(config, updateTable);
-
-        /**
-         * 新增数据库表列信息
-         */
-        Column addColumn = new Column();
-        addColumn.setTableName("SYS_TEST");
-        addColumn.setFiledName("TEST_FILED");
-        addColumn.setFiledNameChinese("测试字段");
-        addColumn.setFiledType("varchar");
-        addColumn.setFiledLength(64);
-        addColumn.setHasPrimaryKey(false);
-        addColumn.setHasPrecision(false);
-        addColumn.setHasCanNull(true);
-        addColumn.setHasIdentity(false);
-        addColumn.setHasLength(true);
-        addColumn.setDefaultValue("");
-        addColumn.setForeignKey("");
-        addColumn.setDesc("测试字段");
-        createColumn(config, addColumn);
-
-        /**
-         * 修改表字段信息
-         */
-        Column excelColumn = new Column();
-        excelColumn.setTableName("SYS_TEST");
-        excelColumn.setFiledName("TEST_FILED");
-        excelColumn.setFiledNameChinese("测试字段");
-        excelColumn.setFiledType("varchar");
-        excelColumn.setFiledLength(64);
-        excelColumn.setHasPrimaryKey(false);
-        excelColumn.setHasPrecision(false);
-        excelColumn.setHasCanNull(true);
-        excelColumn.setHasIdentity(false);
-        excelColumn.setHasLength(true);
-        excelColumn.setDefaultValue("");
-        excelColumn.setForeignKey("");
-        excelColumn.setDesc("测试字段更新");
-        updateColumn(config, addColumn, excelColumn);
-
-        /**
-         * 删除一个字段
-         */
-        Column delColumn = new Column();
-        delColumn.setTableName("SYS_TEST");
-        delColumn.setFiledName("TEST_FILED");
-        dropColumn(config, delColumn);
-    }
-
+    /** -----------------------以下是生成数据库基本配置---------------------  **/
 
     /**
      * 初始化数据库
@@ -195,7 +89,7 @@ public class MySqlDBHelper {
             sql = "DROP TABLE IF EXISTS " + ALL_COLUMNS + ";";
             ConnectionHelper.execSql(sql, conn);
 
-            sql = "create table " + ALL_COLUMNS + "(ID int AUTO_INCREMENT not null primary key, TABLE_NAME_INFO varchar(200), FILED_NAME varchar(200),";
+            sql = "CREATE TABLE " + ALL_COLUMNS + "(ID int AUTO_INCREMENT not null primary key, TABLE_NAME_INFO varchar(200), FILED_NAME varchar(200),";
             sql += " FILED_NAME_CHINESE varchar(200), DATA_TYPE varchar(30), FILED_LENGTH varchar(30), DEFAULT_VALUE varchar(200),";
             sql += " FOREIGN_KEY varchar(200), DESCRIPTION varchar(255))";
             sql += tableUtf8 + "COMMENT = '动态创建的所有数据库表字段'" + tableRowFormat;
@@ -205,7 +99,7 @@ public class MySqlDBHelper {
             sql = "DROP TABLE IF EXISTS " + ALL_TABLES + ";";
             ConnectionHelper.execSql(sql, conn);
 
-            sql = "create table " + ALL_TABLES + "(ID int AUTO_INCREMENT not null primary key, PACK_NAME varchar(400),";
+            sql = "CREATE TABLE " + ALL_TABLES + "(ID int AUTO_INCREMENT not null primary key, PACK_NAME varchar(400),";
             sql += " TABLE_NAME_INFO varchar(200), TABLE_NAME_CHINESE varchar(200), DESCRIPTION varchar(255))";
             sql += tableUtf8 + "COMMENT = '动态创建的所有数据库表'" + tableRowFormat;
             ConnectionHelper.execSql(sql, conn);
@@ -220,6 +114,8 @@ public class MySqlDBHelper {
     /**
      * 得到数据库中的表,不包括列
      *
+     * @param config 配置
+     * @return
      * @throws SQLException
      */
     public static Map<String, Table> getAllTables(ConConfig config) throws SQLException {
@@ -248,6 +144,7 @@ public class MySqlDBHelper {
     /**
      * 得到某一张表
      *
+     * @param config     配置
      * @param tableName  表名
      * @param readColumn 是否需要读取列信息
      */
@@ -283,7 +180,9 @@ public class MySqlDBHelper {
     /**
      * 得到某表的所有字段
      *
+     * @param config    配置
      * @param tableName 表名
+     * @return
      */
     public static Map<String, Column> getColumnsByTable(ConConfig config, String tableName) {
         Map<String, Column> columns = new LinkedHashMap<>();
@@ -323,7 +222,7 @@ public class MySqlDBHelper {
         return columns;
     }
 
-    // -----------------------以下是同步方法---------------------
+    /** -----------------------以下是生成脚本方法---------------------  **/
 
     /**
      * 创建数据库
@@ -367,23 +266,29 @@ public class MySqlDBHelper {
      * @param config         配置
      * @param table          表名
      * @param tableCharacter 字符集
+     * @param execStatus     是否需要执行
      */
-    public static void createTable(ConConfig config, Table table, String tableCharacter, String tableRowFormat) {
+    public static String createTable(ConConfig config, Table table, String tableCharacter, String tableRowFormat, boolean execStatus) {
         //如果表为空，直接返回
         if (table == null) {
-            return;
+            return null;
         }
 
         Connection conn = null;
         try {
-            conn = ConnectionHelper.getCon(config);
+            //是否需要执行
+            if (execStatus) {
+                conn = ConnectionHelper.getCon(config);
+            }
             StringBuffer sql = new StringBuffer();
             //判断是否存在该表
             sql.append("DROP TABLE IF EXISTS ");
             sql.append(LM).append(table.getTableName()).append(RM).append(";").append(NL);
-            //执行
-            ConnectionHelper.execSql(sql.toString(), conn);
-
+            //是否需要执行
+            if (execStatus) {
+                //执行
+                ConnectionHelper.execSql(sql.toString(), conn);
+            }
             //重置sql语句
             sql.setLength(0);
             sql.append("CREATE TABLE ").append(table.getTableName()).append(LS);
@@ -423,11 +328,14 @@ public class MySqlDBHelper {
                     }
                 }
                 index++;
-                // 添加到ALL_COLUMNS表中
-                String inSql = "insert into " + ALL_COLUMNS + "(TABLE_NAME_INFO,FILED_NAME,FILED_NAME_CHINESE,DATA_TYPE,FILED_LENGTH,DEFAULT_VALUE,FOREIGN_KEY,DESCRIPTION)"
-                        + " values('" + c.getTableName() + "','" + c.getFiledName() + "','" + c.getFiledNameChinese() + "','"
-                        + c.getFiledType() + "','" + c.getFiledLength() + "','" + c.getDefaultValue() + "','" + c.getForeignKey() + "','" + c.getDesc() + "')";
-                ConnectionHelper.execSql(inSql, conn);
+                //是否需要执行
+                if (execStatus) {
+                    // 添加到ALL_COLUMNS表中
+                    String inSql = "INSERT INTO " + ALL_COLUMNS + "(TABLE_NAME_INFO,FILED_NAME,FILED_NAME_CHINESE,DATA_TYPE,FILED_LENGTH,DEFAULT_VALUE,FOREIGN_KEY,DESCRIPTION)"
+                            + " VALUES('" + c.getTableName() + "','" + c.getFiledName() + "','" + c.getFiledNameChinese() + "','"
+                            + c.getFiledType() + "','" + c.getFiledLength() + "','" + c.getDefaultValue() + "','" + c.getForeignKey() + "','" + c.getDesc() + "')";
+                    ConnectionHelper.execSql(inSql, conn);
+                }
             }
 
             sql.append(RS).append(EN);
@@ -444,70 +352,101 @@ public class MySqlDBHelper {
             //分号结尾
             sql.append(";");
 
-            // 执行sql
-            ConnectionHelper.execSql(sql.toString(), conn);
+            //是否需要执行
+            if (execStatus) {
+                // 执行sql
+                ConnectionHelper.execSql(sql.toString(), conn);
+            } else {
+                return sql.toString();
+            }
 
             // 添加到ALL_TABLES表中
             sql.setLength(0);
-            sql.append("insert into " + ALL_TABLES + "(PACK_NAME, TABLE_NAME_INFO ,TABLE_NAME_CHINESE ,DESCRIPTION)" + " values(");
+            sql.append("INSERT INTO " + ALL_TABLES + "(PACK_NAME, TABLE_NAME_INFO ,TABLE_NAME_CHINESE ,DESCRIPTION)" + " VALUES(");
             sql.append("'").append(table.getPackName());
             sql.append("','").append(table.getTableName());
             sql.append("','").append(table.getTableNameChinese());
             sql.append("','").append(table.getDescription()).append("')");
             ConnectionHelper.execSql(sql.toString(), conn);
-
         } catch (Exception err) {
             System.out.println("创建数据库表" + table.getTableName() + "出错：" + err.getMessage());
             err.printStackTrace();
         } finally {
             ConnectionHelper.closeCon(conn);
         }
+        return null;
     }
 
     /**
      * 修改表信息
+     *
+     * @param config     配置
+     * @param table      表信息
+     * @param execStatus 是否需要执行
+     * @return
      */
-    public static void updateTable(ConConfig config, Table table) {
+    public static String updateTable(ConConfig config, Table table, boolean execStatus) {
         if (table == null) {
-            return;
+            return null;
         }
         Connection conn = null;
         try {
-            conn = ConnectionHelper.getCon(config);
+            //是否需要执行
+            if (execStatus) {
+                conn = ConnectionHelper.getCon(config);
+            }
             StringBuffer sql = new StringBuffer();
-            sql.append(" update ").append(ALL_TABLES).append(" set ");
+            sql.append(" UPDATE ").append(ALL_TABLES).append(" SET ");
             sql.append(" PACK_NAME='").append(table.getPackName());
             sql.append("' ,TABLE_NAME_INFO='").append(table.getTableName());
             sql.append("' ,TABLE_NAME_CHINESE='").append(table.getTableNameChinese());
             sql.append("' ,DESCRIPTION='").append(table.getDescription());
-            sql.append("' where ID=").append(table.getId());
+            sql.append("' WHERE ID=").append(table.getId());
 
-            // 执行sql
-            ConnectionHelper.execSql(sql.toString(), conn);
+            //是否需要执行
+            if (execStatus) {
+                // 执行sql
+                ConnectionHelper.execSql(sql.toString(), conn);
+            }
+
+            return sql.toString();
         } catch (Exception err) {
             err.printStackTrace();
         } finally {
             ConnectionHelper.closeCon(conn);
         }
+        return null;
     }
 
     /**
      * 添加一个新字段
+     *
+     * @param config     配置
+     * @param c          列
+     * @param execStatus 是否需要执行
      */
-    public static void createColumn(ConConfig config, Column c) {
+    public static String createColumn(ConConfig config, Column c, boolean execStatus) {
         if (c == null) {
-            return;
+            return null;
         }
         Connection conn = null;
         try {
-            conn = ConnectionHelper.getCon(config);
+            //是否需要执行
+            if (execStatus) {
+                conn = ConnectionHelper.getCon(config);
+            }
             StringBuffer sql = new StringBuffer();
-            sql.append("alter table ").append(c.getTableName()).append(" add ");
+            sql.append("ALTER TABLE ").append(c.getTableName()).append(" ADD ");
             sql.append(getCommonColumnSql(c));
-            ConnectionHelper.execSql(sql.toString(), conn);
+            //是否需要执行
+            if (execStatus) {
+                ConnectionHelper.execSql(sql.toString(), conn);
+            } else {
+                return sql.toString();
+            }
 
-            String inSql = "insert into " + ALL_COLUMNS + "(TABLE_NAME_INFO,FILED_NAME,FILED_NAME_CHINESE,DATA_TYPE,FILED_LENGTH,DEFAULT_VALUE,FOREIGN_KEY,DESCRIPTION)"
-                    + " values('" + c.getTableName() + "','" + c.getFiledName() + "','" + c.getFiledNameChinese() + "','"
+            String inSql = "INSERT INTO " + ALL_COLUMNS + "(TABLE_NAME_INFO,FILED_NAME,FILED_NAME_CHINESE,DATA_TYPE,FILED_LENGTH,DEFAULT_VALUE,FOREIGN_KEY,DESCRIPTION)"
+                    + " VALUES('" + c.getTableName() + "','" + c.getFiledName() + "','" + c.getFiledNameChinese() + "','"
                     + c.getFiledType() + "','" + c.getFiledLength() + "','" + c.getDefaultValue() + "','" + c.getForeignKey() + "','" + c.getDesc() + "')";
             ConnectionHelper.execSql(inSql, conn);
         } catch (Exception err) {
@@ -515,27 +454,45 @@ public class MySqlDBHelper {
         } finally {
             ConnectionHelper.closeCon(conn);
         }
+        return null;
     }
+
 
     /**
      * 修改表信息
+     *
+     * @param config     配置信息
+     * @param cDB        原列信息
+     * @param cExcel     新列信息
+     * @param execStatus 是否需要执行
+     * @return
+     * @throws Exception
      */
-    public static boolean updateColumn(ConConfig config, Column cDB, Column cExcel) throws Exception {
+    public static String updateColumn(ConConfig config, Column cDB, Column cExcel, boolean execStatus) throws Exception {
         // 如果需要修改
         if (!cDB.equals(cExcel)) {
             Connection conn = null;
             try {
-                conn = ConnectionHelper.getCon(config);
+                //是否需要执行
+                if (execStatus) {
+                    conn = ConnectionHelper.getCon(config);
+                }
                 StringBuffer sql = new StringBuffer();
-                sql.append("alter table ").append(cExcel.getTableName()).append(" change column ");
+                sql.append("ALTER TABLE ").append(cExcel.getTableName()).append(" CHANGE COLUMN ");
                 sql.append(LM).append(cExcel.getFiledName()).append(RM).append(EN);
                 sql.append(getCommonColumnSql(cExcel));
-                // 更新数据库
-                ConnectionHelper.execSql(sql.toString(), conn);
+                //是否需要执行
+                if (execStatus) {
+                    // 更新数据库
+                    ConnectionHelper.execSql(sql.toString(), conn);
+                } else {
+                    return sql.toString();
+                }
+
                 String upSql = "UPDATE " + ALL_COLUMNS + " set FILED_NAME_CHINESE='" + cExcel.getFiledNameChinese() + "',DATA_TYPE='" + cExcel.getFiledType() + "',FOREIGN_KEY='"
                         + cExcel.getForeignKey() + "',DESCRIPTION='" + cExcel.getDesc() + "',FILED_LENGTH='" + cExcel.getFiledLength() + "',TABLE_NAME_INFO='"
                         + cExcel.getTableName() + "',FILED_NAME='" + cExcel.getFiledName()
-                        + "',DEFAULT_VALUE='" + cExcel.getDefaultValue() + "' where FILED_NAME='" + cExcel.getFiledName() + "'";
+                        + "',DEFAULT_VALUE='" + cExcel.getDefaultValue() + "' WHERE FILED_NAME='" + cExcel.getFiledName() + "'";
                 // 修改ALL_COLUMNS
                 ConnectionHelper.execSql(upSql, conn);
             } catch (Exception err) {
@@ -543,26 +500,38 @@ public class MySqlDBHelper {
             } finally {
                 ConnectionHelper.closeCon(conn);
             }
-            return true;
-        } else {
-            return false;
         }
+        return null;
     }
 
     /**
      * 删除一个字段
+     *
+     * @param config     配置信息
+     * @param c          列
+     * @param execStatus 状态
+     * @throws Exception
      */
-    public static void dropColumn(ConConfig config, Column c) throws Exception {
+    public static String dropColumn(ConConfig config, Column c, boolean execStatus) throws Exception {
         Connection conn = null;
         try {
             if (c == null) {
-                return;
+                return null;
             }
-            conn = ConnectionHelper.getCon(config);
+            //是否需要执行
+            if (execStatus) {
+                conn = ConnectionHelper.getCon(config);
+            }
             StringBuffer sql = new StringBuffer();
-            sql.append("alter table ").append(c.getTableName()).append(" drop column ").append(c.getFiledName());
-            // 更新数据库
-            ConnectionHelper.execSql(sql.toString(), conn);
+            sql.append("ALTER TABLE ").append(c.getTableName()).append(" DROP COLUMN ").append(c.getFiledName());
+            //是否需要执行
+            if (execStatus) {
+                // 更新数据库
+                ConnectionHelper.execSql(sql.toString(), conn);
+            } else {
+                return sql.toString();
+            }
+
             String inSql = "DELETE FROM " + ALL_COLUMNS + " WHERE FILED_NAME='" + c.getFiledName() + "'";
             ConnectionHelper.execSql(inSql, conn);
         } catch (Exception err) {
@@ -570,10 +539,14 @@ public class MySqlDBHelper {
         } finally {
             ConnectionHelper.closeCon(conn);
         }
+        return null;
     }
 
     /**
      * 处理列信息
+     *
+     * @param c 列信息
+     * @return
      */
     public static String getCommonColumnSql(Column c) {
         if (c == null) {
@@ -651,6 +624,70 @@ public class MySqlDBHelper {
         }
 
         return false;
+    }
+
+    /** -----------------------以下是生成脚本文件方法---------------------  **/
+
+    /**
+     * 获取创建表的sql语句
+     *
+     * @param excelPath excel文件路径
+     * @param sqlPath   sql文件路径
+     * @return
+     */
+    public static void getCreateTableSql(String excelPath, String sqlPath) {
+        if (StringUtils.isBlank(excelPath)) {
+            return;
+        }
+        if (StringUtils.isBlank(sqlPath)) {
+            return;
+        }
+        //文件输出
+        FileWriter writer = null;
+        try {
+            writer = new FileWriter(new File(sqlPath));
+            //实例化一个文件对象
+            File file = new File(excelPath);
+            //取出文件中所有的表
+            Map<String, Table> allTables = ExcelHelper.getAllTables(file, true);
+            //如果所有表为空
+            if (allTables == null) {
+                return;
+            }
+            Iterator<String> keyStr = allTables.keySet().iterator();
+            ConConfig config = new ConConfig();
+            //如果有值
+            while (keyStr.hasNext()) {
+                //取出key
+                String key = keyStr.next();
+                //取出table对象
+                Table table = allTables.get(key);
+                if (table == null) {
+                    continue;
+                }
+                StringBuffer createTableSql = new StringBuffer();
+                createTableSql.append("/* " + " 添加表【" + table.getTableName() + "】 陈俊  */").append(NL);
+                createTableSql.append("DROP TABLE IF EXISTS ");
+                createTableSql.append(LM).append(table.getTableName()).append(RM).append(";").append(NL);
+                //创建表对象
+                String createSql = createTable(config, table, tableUtf8, tableRowFormat, false);
+                createTableSql.append(createSql).append(NL);
+                createTableSql.append(NL);
+                writer.write(createTableSql.toString());
+            }
+        } catch (Exception e) {
+            System.out.println("获取创建表sql异常！");
+            e.printStackTrace();
+        } finally {
+            if (writer != null) {
+                try {
+                    writer.close();
+                } catch (Exception e) {
+                    System.out.println("关闭失败！");
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
 }

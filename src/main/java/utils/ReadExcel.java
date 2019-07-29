@@ -7,11 +7,22 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+/**
+ * @Description: 读取excel工具类
+ * @Author chenjun
+ * @Create 2018-12-12 18:26
+ */
 public class ReadExcel {
+
+    private static final String SDF_FORMAT = "yyyy-MM-dd HH:mm:ss";
+
+    private static final SimpleDateFormat SDF = new SimpleDateFormat(SDF_FORMAT);
 
     /**
      * 读取Excel，获取工作簿
@@ -153,10 +164,16 @@ public class ReadExcel {
             case NUMERIC:
                 if (DateUtil.isCellDateFormatted(cell)) {
                     // 如果是date类型则 ，获取该cell的date值
-                    cellValue = JdDateUtil.formatDate(DateUtil.getJavaDate(cell.getNumericCellValue()), JdDateUtil.yyyy_MM_dd_HH_mm_ss);
+                    Date date = DateUtil.getJavaDate(cell.getNumericCellValue());
+                    if (date == null) {
+                        cellValue = "";
+                    } else {
+                        cellValue = SDF.format(date);
+                    }
                 } else {
+                    DecimalFormat df = new DecimalFormat("0");
                     // 纯数字
-                    cellValue = AmountUtil.round(new BigDecimal(cell.getNumericCellValue()));
+                    cellValue = df.format(cell.getNumericCellValue());
                 }
                 break;
             case ERROR:

@@ -187,9 +187,9 @@ public class ExcelHelper {
             }
 
             //是否可为空
-            if (StringUtils.equals("Y", String.valueOf(ReadExcel.getCellValue(cellList.get(4))))) {
+            if (StringUtils.equals("Y", String.valueOf(ReadExcel.getCellValue(cellList.get(4)))) || StringUtils.equals("YES", String.valueOf(ReadExcel.getCellValue(cellList.get(4))))) {
                 column.setHasCanNull(true);
-            } else if (StringUtils.equals("N", String.valueOf(ReadExcel.getCellValue(cellList.get(4))))) {
+            } else if (StringUtils.equals("N", String.valueOf(ReadExcel.getCellValue(cellList.get(4)))) || StringUtils.equals("NO", String.valueOf(ReadExcel.getCellValue(cellList.get(4))))) {
                 column.setHasCanNull(false);
             } else {
                 column.setHasCanNull(true);
@@ -199,18 +199,18 @@ public class ExcelHelper {
             column.setDefaultValue(String.valueOf(ReadExcel.getCellValue(cellList.get(5))));
 
             // 是否为主键
-            if (StringUtils.equals("Y", String.valueOf(ReadExcel.getCellValue(cellList.get(6))))) {
+            if (StringUtils.equals("Y", String.valueOf(ReadExcel.getCellValue(cellList.get(6)))) || StringUtils.equals("YES", String.valueOf(ReadExcel.getCellValue(cellList.get(6))))) {
                 column.setHasPrimaryKey(true);
-            } else if (StringUtils.equals("N", String.valueOf(ReadExcel.getCellValue(cellList.get(6))))) {
+            } else if (StringUtils.equals("N", String.valueOf(ReadExcel.getCellValue(cellList.get(6)))) || StringUtils.equals("NO", String.valueOf(ReadExcel.getCellValue(cellList.get(6))))) {
                 column.setHasPrimaryKey(false);
             } else {
                 column.setHasPrimaryKey(false);
             }
 
             // 是否唯一标识
-            if (StringUtils.equals("Y", String.valueOf(ReadExcel.getCellValue(cellList.get(7))))) {
+            if (StringUtils.equals("Y", String.valueOf(ReadExcel.getCellValue(cellList.get(7)))) || StringUtils.equals("YES", String.valueOf(ReadExcel.getCellValue(cellList.get(7))))) {
                 column.setHasIdentity(true);
-            } else if (StringUtils.equals("N", String.valueOf(ReadExcel.getCellValue(cellList.get(7))))) {
+            } else if (StringUtils.equals("N", String.valueOf(ReadExcel.getCellValue(cellList.get(7)))) || StringUtils.equals("NO", String.valueOf(ReadExcel.getCellValue(cellList.get(7))))) {
                 column.setHasIdentity(false);
             } else {
                 column.setHasIdentity(false);
