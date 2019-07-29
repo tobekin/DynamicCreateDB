@@ -11,7 +11,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -633,27 +632,25 @@ public class MySqlDBHelper {
      *
      * @param excelPath excel文件路径
      * @param sqlPath   sql文件路径
+     * @param allTables 所有表信息
      * @return
      */
-    public static void getCreateTableSql(String excelPath, String sqlPath) {
+    public static void getCreateTableSql(String excelPath, String sqlPath, Map<String, Table> allTables) {
         if (StringUtils.isBlank(excelPath)) {
             return;
         }
         if (StringUtils.isBlank(sqlPath)) {
             return;
         }
+        //如果所有表为空
+        if (allTables == null) {
+            return;
+        }
         //文件输出
         FileWriter writer = null;
         try {
             writer = new FileWriter(new File(sqlPath));
-            //实例化一个文件对象
-            File file = new File(excelPath);
-            //取出文件中所有的表
-            Map<String, Table> allTables = ExcelHelper.getAllTables(file, true);
-            //如果所有表为空
-            if (allTables == null) {
-                return;
-            }
+            //循环读取
             Iterator<String> keyStr = allTables.keySet().iterator();
             ConConfig config = new ConConfig();
             //如果有值

@@ -15,11 +15,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @Description: Excel工具类 包括得到所有表及字段
+ * @Description: Excel工具类 包括得到所有表及字段(其他excel表)
  * @Author chenjun
- * @Create 2018-12-12 14:32
+ * @Create 2019-07-16 14:32
  */
-public class ExcelHelper {
+public class ExcelHelperOther {
 
     /**
      * 从Excel中得到表
@@ -61,18 +61,18 @@ public class ExcelHelper {
                 continue;
             }
             //如果列的长度不正确直接返回
-            if (firstCellList.size() < 5) {
+            if (firstCellList.size() < 3) {
                 continue;
             }
 
-            String tableName = String.valueOf(ReadExcel.getCellValue(firstCellList.get(2))).trim().toUpperCase();
+            String tableName = String.valueOf(ReadExcel.getCellValue(firstCellList.get(1))).trim().toUpperCase();
             //如果表名为空
             if (StringUtils.isBlank(tableName)) {
                 continue;
             }
 
             //构建一张表
-            Table table = new Table(i, String.valueOf(ReadExcel.getCellValue(firstCellList.get(1))).trim(), tableName, String.valueOf(ReadExcel.getCellValue(firstCellList.get(3))).trim(), String.valueOf(ReadExcel.getCellValue(firstCellList.get(4))).trim());
+            Table table = new Table(i, null, tableName, String.valueOf(ReadExcel.getCellValue(firstCellList.get(2))).trim(), null);
 
             //需要读限列信息
             if (readColumn) {
@@ -84,8 +84,8 @@ public class ExcelHelper {
                     //从第二个sheet表开始
                     //得到表名
                     String tn = sheetList.get(j).getSheetName().trim();
-                    //找到对应的表后，读取列信息，根据数据库名中文名匹配
-                    if (StringUtils.equals(table.getTableNameChinese(), tn)) {
+                    //找到对应的表后，读取列信息，根据数据库名英文名匹配
+                    if (StringUtils.equals(table.getTableName(), tn)) {
                         table.setColumns(getColumnsByTable(sheetList.get(j)));
                         break;
                     }
@@ -121,7 +121,6 @@ public class ExcelHelper {
         return columns;
     }
 
-
     /**
      * 将excel中sheet的每一行封装为Column
      *
@@ -147,7 +146,7 @@ public class ExcelHelper {
             }
 
             //如果列的长度不正确直接返回
-            if (cellList.size() < 10) {
+            if (cellList.size() < 9) {
                 continue;
             }
 
@@ -159,12 +158,9 @@ public class ExcelHelper {
             // 字段名
             column.setFiledName(String.valueOf(ReadExcel.getCellValue(cellList.get(1))).trim().toUpperCase());
 
-            //中文字段名
-            column.setFiledNameChinese(String.valueOf(ReadExcel.getCellValue(cellList.get(2))).trim());
-
             //处理数据类型
             // 类型和长度 varchar(10,3)
-            String type = String.valueOf(ReadExcel.getCellValue(cellList.get(3))).trim();
+            String type = String.valueOf(ReadExcel.getCellValue(cellList.get(2))).trim();
             // 没有长度的类型
             if (type.indexOf("(") == -1) {
                 column.setHasLength(false);
@@ -196,40 +192,28 @@ public class ExcelHelper {
             }
 
             //是否可为空
-            if (StringUtils.equals("Y", String.valueOf(ReadExcel.getCellValue(cellList.get(4))).trim().toUpperCase()) || StringUtils.equals("YES", String.valueOf(ReadExcel.getCellValue(cellList.get(4))).trim().toUpperCase())) {
+            if (StringUtils.equals("Y", String.valueOf(ReadExcel.getCellValue(cellList.get(5))).trim().toUpperCase()) || StringUtils.equals("YES", String.valueOf(ReadExcel.getCellValue(cellList.get(5))).trim().toUpperCase())) {
                 column.setHasCanNull(true);
-            } else if (StringUtils.equals("N", String.valueOf(ReadExcel.getCellValue(cellList.get(4))).trim().toUpperCase()) || StringUtils.equals("NO", String.valueOf(ReadExcel.getCellValue(cellList.get(4))).trim().toUpperCase())) {
+            } else if (StringUtils.equals("N", String.valueOf(ReadExcel.getCellValue(cellList.get(5))).trim().toUpperCase()) || StringUtils.equals("NO", String.valueOf(ReadExcel.getCellValue(cellList.get(5))).trim().toUpperCase())) {
                 column.setHasCanNull(false);
             } else {
                 column.setHasCanNull(true);
             }
 
             //默认值
-            column.setDefaultValue(String.valueOf(ReadExcel.getCellValue(cellList.get(5))).trim());
+            column.setDefaultValue(String.valueOf(ReadExcel.getCellValue(cellList.get(6))).trim());
 
             // 是否为主键
-            if (StringUtils.equals("Y", String.valueOf(ReadExcel.getCellValue(cellList.get(6))).trim().toUpperCase()) || StringUtils.equals("YES", String.valueOf(ReadExcel.getCellValue(cellList.get(6))).trim().toUpperCase())) {
-                column.setHasPrimaryKey(true);
-            } else if (StringUtils.equals("N", String.valueOf(ReadExcel.getCellValue(cellList.get(6))).trim().toUpperCase()) || StringUtils.equals("NO", String.valueOf(ReadExcel.getCellValue(cellList.get(6))).trim().toUpperCase())) {
-                column.setHasPrimaryKey(false);
-            } else {
-                column.setHasPrimaryKey(false);
-            }
-
-            // 是否唯一标识
             if (StringUtils.equals("Y", String.valueOf(ReadExcel.getCellValue(cellList.get(7))).trim().toUpperCase()) || StringUtils.equals("YES", String.valueOf(ReadExcel.getCellValue(cellList.get(7))).trim().toUpperCase())) {
-                column.setHasIdentity(true);
+                column.setHasPrimaryKey(true);
             } else if (StringUtils.equals("N", String.valueOf(ReadExcel.getCellValue(cellList.get(7))).trim().toUpperCase()) || StringUtils.equals("NO", String.valueOf(ReadExcel.getCellValue(cellList.get(7))).trim().toUpperCase())) {
-                column.setHasIdentity(false);
+                column.setHasPrimaryKey(false);
             } else {
-                column.setHasIdentity(false);
+                column.setHasPrimaryKey(false);
             }
-
-            // 外键
-            column.setForeignKey(String.valueOf(ReadExcel.getCellValue(cellList.get(8))).trim().toUpperCase());
 
             //备注
-            column.setDesc(String.valueOf(ReadExcel.getCellValue(cellList.get(9))).trim());
+            column.setDesc(String.valueOf(ReadExcel.getCellValue(cellList.get(8))).trim());
 
             //键为大写
             columns.put(column.getFiledName(), column);

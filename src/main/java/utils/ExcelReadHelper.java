@@ -91,8 +91,8 @@ public class ExcelReadHelper {
         }
         //数据
         List<ArrayList<Object>> dataList = new ArrayList<ArrayList<Object>>();
-        //sheet中总行数(包括空行)
-        int totalRows = sheet.getLastRowNum();
+        //sheet中总行数(不包括空行)
+        int totalRows = sheet.getPhysicalNumberOfRows();
         //判断如果开始行数为空或大于总行数
         if (startRow == null || startRow > totalRows) {
             //默认从第一行开始读取
@@ -112,8 +112,8 @@ public class ExcelReadHelper {
             if (row == null) {
                 continue;
             }
-            //每行的总列数(包括空列)
-            int totalCells = row.getLastCellNum();
+            //每行的总列数(不包括空列)
+            int totalCells = row.getPhysicalNumberOfCells();
             //第一列的序号
             int firstCellNum = row.getFirstCellNum();
             //判断如果开始列数为空或大于总列数

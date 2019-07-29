@@ -29,20 +29,21 @@ public class MySqlDBTest {
         String fileName = "test.xlsx";
         String filePath = MySqlDBHelper.class.getClassLoader().getResource(fileName).getPath();
         String sqlPath = filePath.replace("xlsx", "sql");
-        //获取表sql数据
-        MySqlDBHelper.getCreateTableSql(filePath, sqlPath);
-
-        //初始化数据库
-        MySqlDBHelper.initDB("jdbc:mysql://localhost", "root", "123456", "DYNAMIC_CREATE_DB_TEST".toLowerCase(), MySqlDBHelper.dbUTF8);
-        ConConfig config = new ConConfig("jdbc:mysql://localhost", "root", "123456", "DYNAMIC_CREATE_DB_TEST".toLowerCase());
 
         //实例化一个文件对象
         File file = new File(filePath);
         //取出文件中所有的表
         Map<String, Table> allTables = ExcelHelper.getAllTables(file, true);
 
+        //获取表sql数据
+        MySqlDBHelper.getCreateTableSql(filePath, sqlPath, allTables);
+
         //构建所有表的实体类
         EntityBuilderHelper.builder(allTables);
+
+        //初始化数据库
+        MySqlDBHelper.initDB("jdbc:mysql://localhost", "root", "123456", "DYNAMIC_CREATE_DB_TEST".toLowerCase(), MySqlDBHelper.dbUTF8);
+        ConConfig config = new ConConfig("jdbc:mysql://localhost", "root", "123456", "DYNAMIC_CREATE_DB_TEST".toLowerCase());
 
         Iterator<String> keyStr = allTables.keySet().iterator();
         //如果有值
