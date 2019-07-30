@@ -11,9 +11,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Description: 对应sqlserver底层操作类 包括得到所有表及字段、得到与数据库连接
@@ -689,4 +687,122 @@ public class MySqlDBHelper {
         }
     }
 
+    /**
+     * -----------------------以下是将数据库表导出成excel方法---------------------
+     **/
+
+    /**
+     * 将数据库表结构导出成excel
+     *
+     * @param config   连接配置
+     * @param fileName 文件名
+     * @param filePath 文件路径
+     */
+    public static void exportExcelByDataBase(ConConfig config, String fileName, String filePath) {
+        //文件路径为空
+        if (StringUtils.isBlank(filePath)) {
+            return;
+        }
+        //数据库名为空
+        if (StringUtils.isBlank(config.getDbName())) {
+            return;
+        }
+
+        //sheet名称
+        List<String> sheetNames = new ArrayList<>();
+        sheetNames.add("目录");
+        //表头
+        List<List<String>> headList = new ArrayList();
+        //第一页表头
+        List<String> headFirst = new ArrayList<>(Arrays.asList(new String[]{"序号", "表名", "表注释", "链接"}));
+        headList.add(headFirst);
+        List<String> headOther = new ArrayList<>(Arrays.asList(new String[]{"表名", "列名", "数据类型", "字段类型", "长度", "是否为空", "默认值", "是否主键", "备注"}));
+        //每个sheet数据
+        List<List<List<Object>>> dataList = new ArrayList<>();
+
+        //查询数据库表名语句
+        String tableNameSql = "SELECT TABLE_NAME,TABLE_COMMENT FROM information_schema.TABLES WHERE table_schema='" + config.getDbName() + "' AND table_type='BASE TABLE'";
+        Connection conn = null;
+        try {
+            conn = ConnectionHelper.getCon(config);
+            //预加载
+            PreparedStatement ps = conn.prepareStatement(tableNameSql);
+            //结果集
+            ResultSet rs = ps.executeQuery();
+            int index = 1;
+            List<List<Object>> firstData = new ArrayList<>();
+            dataList.add(firstData);
+            //如果结果集有值
+            while (rs.next()) {
+                //表名
+                String tableName = rs.getString("TABLE_NAME");
+                //表备注
+                String tableComment = rs.getString("TABLE_COMMENT");
+                //添加进集合
+                sheetNames.add(tableName);
+                //添加进集合
+                headList.add(headOther);
+                List<Object> tmpList = new ArrayList<>(Arrays.asList(new String[]{String.valueOf(index), tableName, tableComment, tableName}));
+                firstData.add(tmpList);
+                //查询表的数据结构语句
+                String tableStructureSql = "SELECT TABLE_NAME, COLUMN_NAME, COLUMN_TYPE, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH," +
+                        "IS_NULLABLE, COLUMN_DEFAULT, COLUMN_KEY, COLUMN_COMMENT FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema='" + config.getDbName() + "' AND table_name = '" + tableName + "'";
+                //预加载
+                PreparedStatement psStruct = conn.prepareStatement(tableStructureSql);
+                //结果集
+                ResultSet rsStruct = psStruct.executeQuery();
+                List<List<Object>> sheetData = new ArrayList<>();
+                //循环获取表结构数据
+                while (rsStruct.next()) {
+                    List<Object> data = new ArrayList<>();
+                    //表名
+                    String tableNameStruct = rsStruct.getString("TABLE_NAME");
+                    data.add(tableNameStruct);
+                    //列名
+                    String columnNameStruct = rsStruct.getString("COLUMN_NAME");
+                    data.add(columnNameStruct);
+                    //数据类型
+                    String columnTypeStruct = rsStruct.getString("COLUMN_TYPE");
+                    data.add(columnTypeStruct);
+                    //字段类型
+                    String dataTypeStruct = rsStruct.getString("DATA_TYPE");
+                    data.add(dataTypeStruct);
+                    //长度
+                    String lengthStruct = rsStruct.getString("CHARACTER_MAXIMUM_LENGTH");
+                    data.add(lengthStruct);
+                    //是否为空
+                    String statusNullStruct = rsStruct.getString("IS_NULLABLE");
+                    data.add(statusNullStruct);
+                    //默认值
+                    String defaultStruct = rsStruct.getString("COLUMN_DEFAULT");
+                    data.add(defaultStruct);
+                    //索引
+                    String keyStruct = rsStruct.getString("COLUMN_KEY");
+                    //是否主键
+                    if (StringUtils.equals(keyStruct, "PRI")) {
+                        data.add("YES");
+                    } else {
+                        data.add("NO");
+                    }
+                    //备注
+                    String commentStruct = rsStruct.getString("COLUMN_COMMENT");
+                    data.add(commentStruct);
+                    //添加sheet页内数据
+                    sheetData.add(data);
+                }
+                //页数据集合中
+                dataList.add(sheetData);
+                index++;
+            }
+            //重新赋值第一个sheet页数据
+            dataList.set(0, firstData);
+            //写入excel
+            ExcelWriteHelper.createExcelWorkBook(fileName, filePath, sheetNames, headList, dataList);
+        } catch (Exception e) {
+            System.out.println("查询数据库出错：" + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            ConnectionHelper.closeCon(conn);
+        }
+    }
 }

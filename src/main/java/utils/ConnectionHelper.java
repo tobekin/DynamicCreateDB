@@ -85,6 +85,22 @@ public class ConnectionHelper {
     }
 
     /**
+     * 查询sql
+     */
+    public static ResultSet selectSql(String sql, Connection conn) throws Exception {
+        Statement stmt = conn.createStatement();
+        //execute()返回boolean,true表示有ResultSet, false表示没有
+        boolean hasResultSet = stmt.execute(sql);
+        if (hasResultSet) {
+            // 获取结果集
+            ResultSet rs = stmt.getResultSet();
+            return rs;
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * 执行sql
      */
     public static boolean execSql(String sql, Connection conn) throws Exception {

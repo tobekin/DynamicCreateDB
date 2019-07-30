@@ -206,4 +206,18 @@ public class MySqlDBTest {
     }
 
 
+    /**
+     * 导出数据库表结构
+     *
+     * @throws Exception
+     */
+    @Test
+    public void exportTableStruct() {
+        //初始化数据库
+        ConConfig config = new ConConfig("jdbc:mysql://localhost", "root", "123456", "DYNAMIC_CREATE_DB_TEST".toLowerCase());
+        String path = MySqlDBHelper.class.getResource("/").getPath();
+        MySqlDBHelper.exportExcelByDataBase(config, "DataStructTest.xlsx", path);
+    }
+
+
 }
