@@ -135,7 +135,7 @@ public class ExcelReadHelper {
                 Object value = ReadExcel.getCellValue(cell);
                 //如果该列值为空
                 if (value == null) {
-                    continue;
+                    value = "";
                 }
                 //加入集合中
                 rowList.add(value);
