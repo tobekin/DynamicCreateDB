@@ -136,7 +136,7 @@ public class ExcelReadHelper {
             for (int j = startCellTemp; j <= endCellTemp; j++) {
                 //第几列
                 Cell cell = row.getCell(j);
-                Object value = ReadExcelUtil.getCellValue(cell);
+                Object value = ReadExcel.getCellValue(cell);
                 //如果该列值为空
                 if (value == null) {
                     value = "";
