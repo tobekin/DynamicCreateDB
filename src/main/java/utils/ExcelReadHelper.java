@@ -103,36 +103,40 @@ public class ExcelReadHelper {
             //默认读取总行数(包括空行)
             endRow = totalRows;
         }
+        ArrayList<Object> rowList = null;
         //循环读取行
         for (int i = startRow; i <= endRow; i++) {
-
             //第几行
             Row row = sheet.getRow(i);
             //如果该行为空
             if (row == null) {
                 continue;
             }
-            //每行的总列数(不包括空列)
-            int totalCells = row.getPhysicalNumberOfCells();
+            //开始列（临时）
+            Integer startCellTemp = startCell;
+            //结束列（临时）
+            Integer endCellTemp = endCell;
+            //每行的总列数(包括空列)
+            int totalCells = row.getLastCellNum() - 1;
             //第一列的序号
             int firstCellNum = row.getFirstCellNum();
             //判断如果开始列数为空或大于总列数
-            if (startCell == null || startCell > totalCells) {
+            if (startCellTemp == null || startCellTemp > totalCells) {
                 //默认从第一行开始读取
-                startCell = firstCellNum;
+                startCellTemp = firstCellNum;
             }
             //判断如果结束列数为空或大于总列数
-            if (endCell == null || endCell > totalCells) {
+            if (endCellTemp == null || endCellTemp > totalCells) {
                 //默认读取总列数(包括空列)
-                endCell = totalCells;
+                endCellTemp = totalCells;
             }
-
-            ArrayList<Object> rowList = new ArrayList<Object>();
+            //实例化对象
+            rowList = new ArrayList<>();
             //循环读取列
-            for (int j = startCell; j <= endCell; j++) {
+            for (int j = startCellTemp; j <= endCellTemp; j++) {
                 //第几列
                 Cell cell = row.getCell(j);
-                Object value = ReadExcel.getCellValue(cell);
+                Object value = ReadExcelUtil.getCellValue(cell);
                 //如果该列值为空
                 if (value == null) {
                     value = "";
@@ -143,7 +147,7 @@ public class ExcelReadHelper {
 
             //将行数据加入到数据集合中
             dataList.add(rowList);
-        }
+        } 
 
         return dataList;
     }
