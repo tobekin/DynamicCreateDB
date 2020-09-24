@@ -2,8 +2,8 @@ import entity.Column;
 import entity.ConConfig;
 import entity.Table;
 import org.junit.Test;
-import utils.EntityBuilderHelper;
 import utils.ExcelHelper;
+import utils.ExcelHelperOther;
 import utils.MySqlDBHelper;
 
 import java.io.File;
@@ -16,6 +16,30 @@ import java.util.Map;
  * @Create 2018-12-22 13:42
  */
 public class MySqlDBTest {
+
+    /**
+     * 创建数据库表
+     *
+     * @throws Exception
+     */
+    @Test
+    public void createTableExampleOther() throws Exception {
+        //动态创建表
+        //读取当前文件路径
+        String fileName = "example_other.xlsx";
+        String filePath = MySqlDBHelper.class.getClassLoader().getResource(fileName).getPath();
+        //后缀
+        String suffix = fileName.substring(fileName.lastIndexOf(".") + 1);
+        String sqlPath = filePath.replace(suffix, "sql");
+
+        //实例化一个文件对象
+        File file = new File(filePath);
+        //取出文件中所有的表
+        Map<String, Table> allTables = ExcelHelperOther.getAllTables(file, true);
+
+        //获取表sql数据
+        MySqlDBHelper.getCreateTableSql(filePath, sqlPath, allTables);
+    }
 
     /**
      * 创建数据库表
@@ -41,7 +65,7 @@ public class MySqlDBTest {
         MySqlDBHelper.getCreateTableSql(filePath, sqlPath, allTables);
 
         //构建所有表的实体类
-        EntityBuilderHelper.builder(allTables);
+        /*EntityBuilderHelper.builder(allTables);
 
         //初始化数据库
         MySqlDBHelper.initDB("jdbc:mysql://localhost", "root", "123456", "DYNAMIC_CREATE_DB_TEST".toLowerCase(), MySqlDBHelper.dbUTF8);
@@ -56,7 +80,7 @@ public class MySqlDBTest {
             Table table = allTables.get(key);
             //创建表对象
             MySqlDBHelper.createTable(config, table, MySqlDBHelper.tableUtf8, MySqlDBHelper.tableRowFormat, true);
-        }
+        }*/
     }
 
     /**
