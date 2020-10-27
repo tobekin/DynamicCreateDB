@@ -85,7 +85,7 @@ public class ExcelHelper {
                     //得到表名
                     String tn = sheetList.get(j).getSheetName().trim();
                     //找到对应的表后，读取列信息，根据数据库名中文名匹配
-                    if (StringUtils.equals(table.getTableNameChinese(), tn)) {
+                    if (StringUtils.equalsIgnoreCase(table.getTableNameChinese(), tn)) {
                         table.setColumns(getColumnsByTable(sheetList.get(j)));
                         break;
                     }

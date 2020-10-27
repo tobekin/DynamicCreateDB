@@ -65,7 +65,7 @@ public class ExcelHelperOther {
                 continue;
             }
 
-            String tableName = String.valueOf(ReadExcel.getCellValue(firstCellList.get(1))).trim().toUpperCase();
+            String tableName = String.valueOf(ReadExcel.getCellValue(firstCellList.get(1))).trim();
             //如果表名为空
             if (StringUtils.isBlank(tableName)) {
                 continue;
@@ -85,7 +85,7 @@ public class ExcelHelperOther {
                     //得到表名
                     String tn = sheetList.get(j).getSheetName().trim();
                     //找到对应的表后，读取列信息，根据数据库名英文名匹配
-                    if (StringUtils.equals(table.getTableName(), tn)) {
+                    if (StringUtils.equalsIgnoreCase(table.getTableName(), tn)) {
                         table.setColumns(getColumnsByTable(sheetList.get(j)));
                         break;
                     }
@@ -153,10 +153,10 @@ public class ExcelHelperOther {
             Column column = new Column();
 
             // 表名
-            column.setTableName(String.valueOf(ReadExcel.getCellValue(cellList.get(0))).trim().toUpperCase());
+            column.setTableName(String.valueOf(ReadExcel.getCellValue(cellList.get(0))).trim());
 
             // 字段名
-            column.setFiledName(String.valueOf(ReadExcel.getCellValue(cellList.get(1))).trim().toUpperCase());
+            column.setFiledName(String.valueOf(ReadExcel.getCellValue(cellList.get(1))).trim());
 
             //处理数据类型
             // 类型和长度 varchar(10,3)
@@ -192,9 +192,9 @@ public class ExcelHelperOther {
             }
 
             //是否可为空
-            if (StringUtils.equals("Y", String.valueOf(ReadExcel.getCellValue(cellList.get(5))).trim().toUpperCase()) || StringUtils.equals("YES", String.valueOf(ReadExcel.getCellValue(cellList.get(5))).trim().toUpperCase())) {
+            if (StringUtils.equals("Y", String.valueOf(ReadExcel.getCellValue(cellList.get(5))).trim()) || StringUtils.equals("YES", String.valueOf(ReadExcel.getCellValue(cellList.get(5))).trim())) {
                 column.setHasCanNull(true);
-            } else if (StringUtils.equals("N", String.valueOf(ReadExcel.getCellValue(cellList.get(5))).trim().toUpperCase()) || StringUtils.equals("NO", String.valueOf(ReadExcel.getCellValue(cellList.get(5))).trim().toUpperCase())) {
+            } else if (StringUtils.equals("N", String.valueOf(ReadExcel.getCellValue(cellList.get(5))).trim()) || StringUtils.equals("NO", String.valueOf(ReadExcel.getCellValue(cellList.get(5))).trim())) {
                 column.setHasCanNull(false);
             } else {
                 column.setHasCanNull(true);
@@ -204,9 +204,9 @@ public class ExcelHelperOther {
             column.setDefaultValue(String.valueOf(ReadExcel.getCellValue(cellList.get(6))).trim());
 
             // 是否为主键
-            if (StringUtils.equals("Y", String.valueOf(ReadExcel.getCellValue(cellList.get(7))).trim().toUpperCase()) || StringUtils.equals("YES", String.valueOf(ReadExcel.getCellValue(cellList.get(7))).trim().toUpperCase())) {
+            if (StringUtils.equals("Y", String.valueOf(ReadExcel.getCellValue(cellList.get(7))).trim()) || StringUtils.equals("YES", String.valueOf(ReadExcel.getCellValue(cellList.get(7))).trim())) {
                 column.setHasPrimaryKey(true);
-            } else if (StringUtils.equals("N", String.valueOf(ReadExcel.getCellValue(cellList.get(7))).trim().toUpperCase()) || StringUtils.equals("NO", String.valueOf(ReadExcel.getCellValue(cellList.get(7))).trim().toUpperCase())) {
+            } else if (StringUtils.equals("N", String.valueOf(ReadExcel.getCellValue(cellList.get(7))).trim()) || StringUtils.equals("NO", String.valueOf(ReadExcel.getCellValue(cellList.get(7))).trim())) {
                 column.setHasPrimaryKey(false);
             } else {
                 column.setHasPrimaryKey(false);
