@@ -14,7 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>4.12</junit.version>
         <log4j2.version>2.13.3</log4j2.version>
-        <mysql.version>5.1.44</mysql.version>
+        <mysql.version>8.0.28</mysql.version>
         <dbcp2.version>2.1.1</dbcp2.version>
         <pool2.version>2.4.2</pool2.version>
         <poi.version>3.17</poi.version>
